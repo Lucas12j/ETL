@@ -1,0 +1,2 @@
+22 0 * * 1-5 cd /home && ./job.sh >> /home/job.log
+#

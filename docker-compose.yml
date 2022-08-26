@@ -1,0 +1,59 @@
+services:
+        scraver:
+                build:
+                        context: ./scraver/
+                image: scraver
+                container_name: scraver
+                networks:
+                        rede_tcc:
+                                ipv4_address: ${IP_SCRAVER}
+                
+        
+        mongodb:
+                image: mongo:4.4.6
+                restart: always
+                container_name: mongodb
+                environment:
+                        MONGO_INITDB_ROOT_USERNAME: ${ROOT_USERNAME}
+                        MONGO_INITDB_ROOT_PASSWORD: ${ROOT_PASSWORD}
+                networks:
+                        rede_tcc:
+                                ipv4_address: ${IP_MONGODB}
+                                
+        core:
+                build:
+                        context: ./core/
+                        args:
+                                ROOT_USERNAME: ${ROOT_USERNAME}
+                                ROOT_PASSWORD: ${ROOT_PASSWORD}
+                                IP_MONGODB: ${IP_MONGODB}
+                                IP_SCRAVER: ${IP_SCRAVER}
+                image: core
+                container_name: core
+                networks:
+                        rede_tcc:
+                                ipv4_address: ${IP_CORE}
+                                
+        api:
+                build:
+                        context: ./api/
+                        args:
+                                ROOT_USERNAME: ${ROOT_USERNAME}
+                                ROOT_PASSWORD: ${ROOT_PASSWORD}
+                                IP_MONGODB: ${IP_MONGODB}
+                image: api
+                container_name: api
+                networks:
+                        rede_tcc:
+                                ipv4_address: ${IP_API}
+             
+             
+
+networks:
+        rede_tcc:
+                ipam:
+                        driver: default
+                        config:
+                                - subnet: 172.18.0.0/29
+                                  gateway: 172.18.0.1
+version: "2"
