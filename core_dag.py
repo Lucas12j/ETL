@@ -122,7 +122,7 @@ def func_extract():
 
                             }
 
-        for code in ['ITSA4', 'WEGE3', 'VIVT3', 'STBP3']: #stocksCode
+        for code in stocksCode: 
             log = {}
             file = open('realTime.temp', 'a')
             post.update({"url":"https://www.fundamentus.com.br/detalhes.php?papel="+code})
