@@ -9,8 +9,7 @@ scraverIp = ['SCRAVER IP'] #'172.19.0.8'
 mongoStringConnection =  ['MONGO CONNECTION STRING'] #'mongodb://etl:engenheirodedados@172.19.0.9:27017/admin'
 
 extractionDate = datetime.datetime.today().isoformat()[:10]
-
-                                           
+                                       
 def func_extract():  
         data = []
         logs_list = []
@@ -23,7 +22,6 @@ def func_extract():
             }
 
         stocksCode = requests.post(url='http://'+scraverIp, json=post).json()['value']
-
 
         post = {
                                 "dynamic":0,
@@ -118,8 +116,6 @@ def func_extract():
                                                 "regex":">(.+)<"
                                             }
                                         ]
-
-
                             }
 
         for code in stocksCode: 
@@ -207,7 +203,6 @@ def func_transform(ti):
             document_list.append(document)   
 
         return document_list
-
 
 def func_load(ti):
 
