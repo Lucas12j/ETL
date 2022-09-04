@@ -5,15 +5,15 @@ import datetime
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 
-scraverIp = '[CHANGE TO IP SCRAVER]' #'172.19.0.8'
-mongoStringConnection = '[CHANGE TO MONGO DB STRING]' #'mongodb://etl:engenheirodedados@172.19.0.9:27017/admin'
+scraverIp = ['SCRAVER IP'] #'172.19.0.8'
+mongoStringConnection =  ['MONGO CONNECTION STRING'] #'mongodb://etl:engenheirodedados@172.19.0.9:27017/admin'
 
 extractionDate = datetime.datetime.today().isoformat()[:10]
-data = []
-logs_list = []
-document_list = []
+
                                            
 def func_extract():  
+        data = []
+        logs_list = []
 
         post = {
                     "url":"https://www.fundamentus.com.br/detalhes.php?papel=",
@@ -122,7 +122,7 @@ def func_extract():
 
                             }
 
-        for code in stocksCode:
+        for code in ['ITSA4', 'WEGE3', 'VIVT3', 'STBP3']: #stocksCode
             log = {}
             file = open('realTime.temp', 'a')
             post.update({"url":"https://www.fundamentus.com.br/detalhes.php?papel="+code})
@@ -161,11 +161,17 @@ def func_extract():
         import os
         os.system("rm realTime.temp")
 
+        return data, logs_list
 
 
 
 
-def func_transform():
+
+def func_transform(ti):
+
+        document_list = []
+
+        data = ti.xcom_pull(task_ids = 'func_extract')[0]
 
         for i in data:
             values = tuple(map(lambda x:x.replace(",","."), i))
@@ -200,9 +206,14 @@ def func_transform():
 
             document_list.append(document)   
 
+        return document_list
 
 
-def func_load():
+def func_load(ti):
+
+        logs_list = ti.xcom_pull(task_ids = 'func_extract')[1]
+        document_list = ti.xcom_pull(task_ids = 'func_transform')
+
         client = pymongo.MongoClient(mongoStringConnection)
         stocksClient = client['etl']['stocks']
         stocksClient.insert_many(document_list)
@@ -211,7 +222,7 @@ def func_load():
         logClient.insert_many(logs_list)
 
 
-with DAG('core', start_date = datetime.datetime(2021,9,4), schedule_interval = '0 23 * * *', catchup = False ) as dag:
+with DAG('core_dag', start_date = datetime.datetime(2022,9,4), schedule_interval = '0 23 * * *', catchup = False ) as dag:
 
         func_extract = PythonOperator(
                     task_id = 'func_extract',
