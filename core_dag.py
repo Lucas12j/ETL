@@ -211,7 +211,7 @@ def func_load():
         logClient.insert_many(logs_list)
 
 
-with DAG('core', start_date = datetime.datetime(2021,12,1), schedule_interval = '0 23 * * *', catchup = False ) as dag:
+with DAG('core', start_date = datetime.datetime(2021,9,4), schedule_interval = '0 23 * * *', catchup = False ) as dag:
 
         func_extract = PythonOperator(
                     task_id = 'func_extract',
